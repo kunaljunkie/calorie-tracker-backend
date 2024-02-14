@@ -91,21 +91,14 @@ exports.userdetails = async (req, res) => {
 exports.getalluserdetails = async (req, res) => {
     try {
         const { userid, date } = req.query
-        if (date) {
-            const data = await userDataModel.find({ userid: userid, date: date }).populate('userid')
+
+        let query = date ? { userid: userid, date: date } : { userid: userid }
+            const data = await userDataModel.find(query).populate('userid')
             if (data.length) {
                 res.status(201).json({ data: data, mesage: "successfull", code: 201 })
             } else {
                 res.status(201).json({ data: data, mesage: "no data Found", code: 201 })
             }
-        } else {
-            const data = await userDataModel.find({ userid: userid }).populate('userid')
-            if (data.length) {
-                res.status(201).json({ data: data, mesage: "successfull", code: 201 })
-            } else {
-                res.status(201).json({ data: data, mesage: "no data Found", code: 201 })
-            }
-        }
 
     } catch (error) {
         res.status(501).json({ error: error.message })
@@ -115,27 +108,15 @@ exports.getalluserdetails = async (req, res) => {
 exports.getaUserdetailbydateAndUserid = async (req, res) => {
     try {
         const { date, userid } = req.body
-        console.log(date, userid)
         let data = null
+        let query = date ? { userid: userid, date: date } : { userid: userid }
         const userModeldata = await userDataModel.findOne({ date: date, userid: userid })
-        if (date) {
-            data = await userdetailmodel.find({
-                date: date,
-                userid: userid
-            }).populate('userid')
+            data = await userdetailmodel.find(query).sort({ createdAt: -1 }).populate('userid')
             if (data.length) {
                 res.status(201).json({ data: data, mesage: "successfull", code: 201, userData: userModeldata })
             } else {
                 res.status(201).json({ data: data, mesage: "no data Found", code: 201, userData: userModeldata })
             }
-        } else {
-            data = await userdetailmodel.find({ userid: userid }).sort({ createdAt: -1 }).populate('userid')
-            if (data.length) {
-                res.status(201).json({ data: data, mesage: "successfull", code: 201, userData: userModeldata })
-            } else {
-                res.status(201).json({ data: data, mesage: "no data Found", code: 201, userData: userModeldata })
-            }
-        }
 
     } catch (error) {
         res.status(501).json({ error: error.message })

@@ -26,7 +26,7 @@ exports.getfoodnames = async (req,res )=>{
         res.status(200).json({ data: data })
     } catch  (err) {
         res.status(200).json({
-            error: err
+            error: err.message
         })
     }
    
@@ -39,9 +39,9 @@ exports.getActivity = async (req, res) => {
 
 
     } catch (err) {
-        // res.status(200).json({
-        //     error:err
-        // })
+        res.status(200).json({
+            error:err.message
+        })
     }
 }
 
@@ -54,19 +54,19 @@ exports.selectactivity = async(req,res)=>{
         
     } catch (err) {
          res.status(501).json({
-            error:err
+            error:err.message
         })
     }
 }
 
-exports.getmetvalue = async (req, res) => {
-    try {
-        const data = await activity.find({
+// exports.getmetvalue = async (req, res) => {
+//     try {
+//         const data = await activity.find({
 
-        })
+//         })
 
-    } catch (err) {
+//     } catch (err) {
 
-    }
-}
+//     }
+// }
 

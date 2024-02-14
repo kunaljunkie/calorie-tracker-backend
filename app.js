@@ -7,11 +7,6 @@ const bodypraser = require("body-parser");
 const helmet = require("helmet");
 const routes = require("./src/routes/routing");
 const errorMiddleware = require("./src/middleware/error");
-const { default: axios } = require("axios");
-
-
-
-
 dotenv.config();  
 app.use(cookieparser());
 app.use(bodypraser.json());
@@ -24,7 +19,6 @@ app.use((req, res, next) => {
 });
 app.use("/", routes);
 app.use(errorMiddleware);
-
 module.exports = app;
 
 

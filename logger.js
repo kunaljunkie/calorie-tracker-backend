@@ -1,8 +1,6 @@
 const winston = require('winston');
-
-// Configure the logger
 const logger = winston.createLogger({
-  level: 'error', // Set the logging level
+  level: 'error', 
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(info => {
@@ -15,7 +13,6 @@ const logger = winston.createLogger({
 });
 process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception:', error);
-    // Send alerts, perform cleanup, and exit gracefully
     process.exit(1);
   });
 module.exports = logger;

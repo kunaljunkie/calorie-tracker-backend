@@ -17,6 +17,9 @@ exports.signupUser = async (req, res) => {
       const data = await signupUser.create(userdetails)
       if(data){
         res.status(201).json({details:data,mesage:"successfull",code:201})
+      } else 
+      {
+        res.status(201).json({details:data,mesage:"something went wrog",code:201})
       }
     }
   }catch(err){
