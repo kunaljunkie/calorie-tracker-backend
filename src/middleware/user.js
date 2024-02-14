@@ -3,9 +3,9 @@ const userValidator =async (req,res,next)=>{
     try{
         if(req.method==="POST"){
             if(req.body){
-                let body = req.body
+                let {userdetails} = req.body
                 const userArray = [ "Name","Weight","Height","Gender","Age"]
-                if(Object.keys(body).toString()===userArray.toString()){
+                if(Object.keys(userdetails).toString()==userArray.toString()){
                     next()
                 }else{
                     res.json({
