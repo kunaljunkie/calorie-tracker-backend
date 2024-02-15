@@ -10,18 +10,34 @@ exports.userdetails = async (req, res) => {
         const food = await foodmodel.find({ ID: fooddata.foodname })
         let gender = userdata.Gender
         let BMR, netCaloriesPerDay, caloriesOutForActivities, caloriesin
-        let activityDutation = Number(activitydata.ActivityDuration) / 60
         if (gender === 'Male') {
             BMR = 66.4730 + (13.7516 * userdata.Weight) + (5.0033 * userdata.Height) - (6.7550 * userdata.Age)
         } else if (gender === 'Female') {
             BMR = 655.0955 + (9.5634 * userdata.Weight) + (1.8496 * userdata.Height) - (4.6756 * userdata.Age)
         }
         const userPerDay = await userDataModel.findOne({ userid: userid, date: fooddata.date ? fooddata.date : activitydata.activityDate })
+        let activityDutation = Number(activitydata.ActivityDuration) / 60
+        if(!activitydata.ActivityDuration || activitydata.ActivityDuration == 'NaN'){
+             activitydata.ActivityName = "----"
+             activitydata.ActivityDescription = "----"
+             activitydata.metvalue = 0
+             activitydata.ActivityDuration = "----"
+        }
         if (userPerDay) {
-            caloriesin = food[0].Calories * Number(fooddata.serving)
-            let caloriein = Number(caloriesin) + Number(userPerDay.caloriein)
-            caloriesOutForActivities = activitydata.metvalue * userdata.Weight * activityDutation
-            let calorieout = Number(caloriesOutForActivities) + Number(userPerDay.calorieout)
+            let caloriein = 0
+            if(fooddata.serving){
+                caloriesin = food[0].Calories * Number(fooddata.serving)
+                 caloriein = Number(caloriesin) + Number(userPerDay.caloriein)
+            } else {
+                caloriesin = userPerDay.caloriein
+            }
+            let calorieout = 0
+            if(activityDutation || activityDutation =='NaN'){
+                caloriesOutForActivities = activitydata.metvalue * userdata.Weight * activityDutation
+                calorieout = Number(caloriesOutForActivities) + Number(userPerDay.calorieout ? userPerDay.calorieout : 0 )
+            } else {
+                calorieout = userPerDay.calorieout
+            }
             let netcalorie = Number(caloriein) - Number(calorieout)
             await userDataModel.updateOne({ userid: userid }, {
                 $set: {
@@ -36,7 +52,9 @@ exports.userdetails = async (req, res) => {
                 { new: true })
         } else {
             caloriesin = food[0].Calories * Number(fooddata.serving)
+            caloriesin ? caloriesin = caloriesin : caloriesin = 0
             caloriesOutForActivities = activitydata.metvalue * userdata.Weight * activityDutation
+            caloriesOutForActivities ? caloriesOutForActivities = caloriesOutForActivities : caloriesOutForActivities = 0 
             netCaloriesPerDay = caloriesin - caloriesOutForActivities
             await userDataModel.create({
                 caloriein: caloriesin,
@@ -44,10 +62,11 @@ exports.userdetails = async (req, res) => {
                 netcalorie: netCaloriesPerDay,
                 bmr: BMR,
                 userid: userid,
-                date: fooddata.date ? fooddata.date : activitydata.activityDate})}
+                date: fooddata.date ? fooddata.date : activitydata.activityDate})
+            }
         let objectForinsert = {
             bmr: BMR,
-            date: fooddata.date,
+            date: fooddata.date ? fooddata.date : activitydata.activityDate,
             caloriein: caloriesin,
             calorieout: caloriesOutForActivities,
             netcalorie: netCaloriesPerDay,
