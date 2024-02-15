@@ -23,7 +23,7 @@ exports.signupUser = async (req, res) => {
       }
     }
   }catch(err){
-    res.status(501).json({error: err})
+    res.status(501).json({error: err.message})
   }
 };
 
@@ -48,6 +48,6 @@ exports.getallusers = async(req,res)=>{
     }
     
   }catch(err){
-    res.status(501).json({error: err}) 
+    res.status(501).json({error: err.message}) 
   }
 }
