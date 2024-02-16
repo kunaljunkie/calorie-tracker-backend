@@ -7,7 +7,7 @@ exports.userdetails = async (req, res) => {
     try {
         const { userid, fooddata, activitydata } = req.body
         const userdata = await usermodel.findById(userid)
-        const food = await foodmodel.find({ ID: fooddata.foodname })
+        const food = await foodmodel.findOne({ ID: fooddata.foodname })
         let gender = userdata.Gender
         let BMR, netCaloriesPerDay, caloriesOutForActivities, caloriesin
         if (gender === 'Male') {
@@ -17,19 +17,22 @@ exports.userdetails = async (req, res) => {
         }
         const userPerDay = await userDataModel.findOne({ userid: userid, date: fooddata.date ? fooddata.date : activitydata.activityDate })
         let activityDutation = Number(activitydata.ActivityDuration) / 60
-        if(!activitydata.ActivityDuration || activitydata.ActivityDuration == 'NaN'){
-             activitydata.ActivityName = "----"
-             activitydata.ActivityDescription = "----"
+        if(!activitydata.ActivityDuration || activitydata.ActivityDuration == 'NaN' || Number(activitydata.ActivityDuration) == 0  ){
+             activitydata.ActivityName = ""
+             activitydata.ActivityDescription = ""
              activitydata.metvalue = 0
-             activitydata.ActivityDuration = "----"
+             activitydata.ActivityDuration = ""
         }
         if (userPerDay) {
             let caloriein = 0
             if(fooddata.serving){
-                caloriesin = food[0].Calories * Number(fooddata.serving)
+                caloriesin = food.Calories * Number(fooddata.serving)
                  caloriein = Number(caloriesin) + Number(userPerDay.caloriein)
             } else {
-                caloriesin = userPerDay.caloriein
+                if(fooddata.serving){
+                    caloriesin = userPerDay.caloriein
+                }
+                caloriein  = userPerDay.caloriein
             }
             let calorieout = 0
             if(activityDutation || activityDutation =='NaN'){
@@ -51,7 +54,7 @@ exports.userdetails = async (req, res) => {
             },
                 { new: true })
         } else {
-            caloriesin = food[0].Calories * Number(fooddata.serving)
+            caloriesin = food?food.Calories:0 * Number(fooddata.serving)
             caloriesin ? caloriesin = caloriesin : caloriesin = 0
             caloriesOutForActivities = activitydata.metvalue * userdata.Weight * activityDutation
             caloriesOutForActivities ? caloriesOutForActivities = caloriesOutForActivities : caloriesOutForActivities = 0 
@@ -67,10 +70,10 @@ exports.userdetails = async (req, res) => {
         let objectForinsert = {
             bmr: BMR,
             date: fooddata.date ? fooddata.date : activitydata.activityDate,
-            caloriein: caloriesin,
+            caloriein: caloriesin?caloriesin:"",
             calorieout: caloriesOutForActivities,
             netcalorie: netCaloriesPerDay,
-            foodname: food[0].name,
+            foodname: food?food.name:"--",
             mealtype: fooddata.mealtype,
             foodgroup: fooddata.foodgroup,
             serving: fooddata.serving,

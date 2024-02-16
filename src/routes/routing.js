@@ -7,7 +7,7 @@ const { userdetails, getalluserdetails, getaUserdetailbydateAndUserid, deleteuse
 
 const router = express.Router()
 
-router.route('/signup').post(userValidator,signupUser)
+router.route('/signup').post(signupUser)
 router.route('/getall-users').get(getallusers)
 router.route('/getactivity').get(getActivity)
 router.route('/getfood').get(getfood)
